@@ -28,13 +28,14 @@ class TextFieldWidget extends StatelessWidget {
           ),
           Container(
             decoration: const BoxDecoration(
-              color: Color.fromARGB(255, 45, 45, 45),
+              color: Color.fromARGB(255, 39, 39, 39),
               borderRadius: BorderRadius.all(
                 Radius.circular(10),
               ),
             ),
             child: TextFormField(
               controller: controller,
+              keyboardType: TextInputType.text,
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
               ),
