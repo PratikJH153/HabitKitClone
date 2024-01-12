@@ -137,7 +137,7 @@ class _AddPageState extends State<AddPage> {
                                   _selectedIcon.icon == habitIcons[index].icon
                                       ? Border.all(
                                           color: Colors.white,
-                                          width: 2,
+                                          width: 3,
                                         )
                                       : null,
                               color: const Color.fromARGB(255, 45, 45, 45),
@@ -176,8 +176,8 @@ class _AddPageState extends State<AddPage> {
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 8,
-                        mainAxisSpacing: 14.0,
-                        crossAxisSpacing: 14.0,
+                        mainAxisSpacing: 12.0,
+                        crossAxisSpacing: 12.0,
                       ),
                       itemCount: habitColors.length,
                       itemBuilder: (context, index) {
@@ -195,10 +195,10 @@ class _AddPageState extends State<AddPage> {
                             child: Center(
                               child: _selectedColor == habitColors[index]
                                   ? Container(
-                                      height: 15,
-                                      width: 15,
-                                      padding: EdgeInsets.all(5),
-                                      decoration: BoxDecoration(
+                                      height: 18,
+                                      width: 18,
+                                      padding: const EdgeInsets.all(5),
+                                      decoration: const BoxDecoration(
                                         shape: BoxShape.circle,
                                         color: Colors.black,
                                       ),

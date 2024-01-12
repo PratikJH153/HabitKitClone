@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:habittracker/constants/dummy_data.dart';
+import 'package:habittracker/models/habit.dart';
 import 'package:habittracker/views/add_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -13,6 +15,35 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   bool isExpanded = false;
   int indexExpanded = -1;
+  int offset = 0;
+  int currentIndex = 0;
+
+  void expand(int index) {
+    setState(() {
+      isExpanded = !isExpanded;
+      if (indexExpanded == -1) {
+        indexExpanded = index;
+      } else {
+        indexExpanded = -1;
+      }
+    });
+  }
+
+  void addStreak(Habit habit, int todayPointer) {
+    setState(() {
+      habit.done!.add(todayPointer);
+    });
+  }
+
+  @override
+  void initState() {
+    if (currentIndex >= 195) {
+      if ((currentIndex - 195) % 28 == 0) {
+        offset += 1;
+      }
+    }
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +66,7 @@ class _HomePageState extends State<HomePage> {
                 style: TextStyle(
                   fontFamily: "Raleway",
                   fontSize: 25,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w900,
                   color: Color.fromARGB(255, 150, 143, 255),
                 ),
               ),
@@ -67,28 +98,24 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-      body: Container(
-        margin: const EdgeInsets.only(
-          left: 20,
-          right: 20,
-          top: 10,
-        ),
+      body: SizedBox(
         child: ListView.builder(
-          itemCount: 5,
+          padding: const EdgeInsets.only(
+            bottom: 120,
+            top: 20,
+            left: 18,
+            right: 18,
+          ),
+          itemCount: habits.length,
           itemBuilder: (ctx, index) {
+            final Habit habit = habits[index];
+            final int todayPointer =
+                DateTime.now().difference(habit.startDate!).inDays - 1;
+            print(todayPointer);
+            addStreak(habit, todayPointer);
             return GestureDetector(
-              onLongPress: () {
-                setState(() {
-                  isExpanded = !isExpanded;
-                  if (indexExpanded == -1) {
-                    indexExpanded = index;
-                  } else {
-                    indexExpanded = -1;
-                  }
-                });
-              },
-              child: AnimatedContainer(
-                duration: const Duration(seconds: 1),
+              onTap: () => expand(index),
+              child: Container(
                 margin: const EdgeInsets.only(bottom: 15),
                 padding: const EdgeInsets.symmetric(
                   horizontal: 14,
@@ -99,6 +126,14 @@ class _HomePageState extends State<HomePage> {
                   borderRadius: BorderRadius.all(
                     Radius.circular(15),
                   ),
+                  boxShadow: [
+                    BoxShadow(
+                      offset: Offset(0, 5),
+                      color: Colors.black26,
+                      blurRadius: 10,
+                      spreadRadius: 0.1,
+                    ),
+                  ],
                 ),
                 child: Column(
                   children: [
@@ -106,23 +141,23 @@ class _HomePageState extends State<HomePage> {
                       children: [
                         Container(
                           padding: const EdgeInsets.all(5),
-                          decoration: const BoxDecoration(
-                            color: Color.fromARGB(255, 150, 143, 255),
-                            borderRadius: BorderRadius.all(
+                          decoration: BoxDecoration(
+                            color: habit.color,
+                            borderRadius: const BorderRadius.all(
                               Radius.circular(10),
                             ),
                           ),
-                          child: const Icon(
-                            Icons.monitor_heart,
+                          child: Icon(
+                            habit.icon,
                             size: 30,
                           ),
                         ),
                         const SizedBox(
                           width: 15,
                         ),
-                        const Text(
-                          "Meditation",
-                          style: TextStyle(
+                        Text(
+                          habit.title!,
+                          style: const TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
                           ),
@@ -130,17 +165,23 @@ class _HomePageState extends State<HomePage> {
                         const Spacer(),
                         InkWell(
                           onTap: () {
-                            print("HELLO");
+                            isExpanded && indexExpanded == index
+                                ? expand(index)
+                                : () {
+                                    print("HELLO");
+                                  };
                           },
                           child: Container(
                             padding: const EdgeInsets.all(14),
-                            decoration: const BoxDecoration(
-                              color: Color.fromARGB(39, 151, 143, 255),
-                              borderRadius: BorderRadius.all(
+                            decoration: BoxDecoration(
+                              color: habit.color!.withOpacity(0.3),
+                              borderRadius: const BorderRadius.all(
                                 Radius.circular(10),
                               ),
                             ),
-                            child: const Icon(Icons.done),
+                            child: isExpanded && indexExpanded == index
+                                ? const Icon(Icons.close)
+                                : const Icon(Icons.done),
                           ),
                         )
                       ],
@@ -160,10 +201,14 @@ class _HomePageState extends State<HomePage> {
                         ),
                         itemCount: 7 * 28,
                         itemBuilder: (BuildContext context, int index) {
+                          //TODO: Make it reverse
+                          int reversedIndex = index + (offset * 28);
                           return Container(
-                            decoration: const BoxDecoration(
-                              color: Color.fromARGB(39, 151, 143, 255),
-                              borderRadius: BorderRadius.all(
+                            decoration: BoxDecoration(
+                              color: habit.done!.contains(reversedIndex)
+                                  ? habit.color!
+                                  : habit.color!.withOpacity(0.1),
+                              borderRadius: const BorderRadius.all(
                                 Radius.circular(3),
                               ),
                             ),
@@ -177,18 +222,31 @@ class _HomePageState extends State<HomePage> {
                         },
                       ),
                     ),
-                    isExpanded
-                        ? indexExpanded == index
-                            ? Row(
+                    isExpanded && indexExpanded == index
+                        ? Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                "This is a description for the habit",
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontFamily: "Poppins",
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              Row(
                                 children: [
                                   Expanded(
                                     child: ElevatedButton.icon(
                                       style: ElevatedButton.styleFrom(
-                                        backgroundColor:
-                                            Color.fromARGB(255, 206, 255, 142),
+                                        backgroundColor: const Color.fromARGB(
+                                            255, 249, 249, 249),
                                         shape: const RoundedRectangleBorder(
                                           borderRadius: BorderRadius.all(
-                                            Radius.circular(12),
+                                            Radius.circular(10),
                                           ),
                                         ),
                                       ),
@@ -209,10 +267,10 @@ class _HomePageState extends State<HomePage> {
                                     width: 8,
                                   ),
                                   Container(
-                                    decoration: const BoxDecoration(
-                                      color: Color.fromARGB(255, 57, 57, 57),
-                                      borderRadius: BorderRadius.all(
-                                        Radius.circular(8),
+                                    decoration: BoxDecoration(
+                                      color: habit.color!.withOpacity(0.1),
+                                      borderRadius: const BorderRadius.all(
+                                        Radius.circular(10),
                                       ),
                                     ),
                                     child: IconButton(
@@ -224,10 +282,10 @@ class _HomePageState extends State<HomePage> {
                                     width: 8,
                                   ),
                                   Container(
-                                    decoration: const BoxDecoration(
-                                      color: Color.fromARGB(255, 57, 57, 57),
-                                      borderRadius: BorderRadius.all(
-                                        Radius.circular(8),
+                                    decoration: BoxDecoration(
+                                      color: habit.color!.withOpacity(0.1),
+                                      borderRadius: const BorderRadius.all(
+                                        Radius.circular(10),
                                       ),
                                     ),
                                     child: IconButton(
@@ -236,8 +294,9 @@ class _HomePageState extends State<HomePage> {
                                     ),
                                   ),
                                 ],
-                              )
-                            : const SizedBox()
+                              ),
+                            ],
+                          )
                         : const SizedBox(),
                   ],
                 ),
