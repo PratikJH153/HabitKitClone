@@ -1,128 +1,127 @@
 import "package:flutter/cupertino.dart";
-import "package:flutter/material.dart";
 
-List<Color> habitColors = const [
-  Color(0xFFef9a9a),
-  Color(0xFFf48fb1),
-  Color(0xFFce93d8), // Purple
-  Color(0xFFb39ddb),
-  Color(0xFF9575cd),
-  Color(0xFF7986cb),
-  Color(0xFF64b5f6), // Blue
-  Color(0xFF4fc3f7),
-  Color(0xFF29b6f6),
-  Color(0xFF81c784), // Green
-  Color(0xFF66bb6a),
-  Color(0xFF4caf50),
-  Color(0xFFaed581), // Lime
-  Color(0xFF9ccc65),
-  Color(0xFF7cb342),
-  Color(0xFFff8a65), // Orange
-  Color(0xFFffab91),
-  Color(0xFFffcc80),
-  Color(0xFFd4e157), // Yellow
-  Color(0xFFc0ca33),
-  Color(0xFFafb42b),
-  Color(0xFFff8a80), // Pink
-  Color(0xFFff5252),
-  Color(0xFFff1744),
-];
+Map<int, Color> habitColors = const {
+  1: Color(0xFFef9a9a),
+  2: Color(0xFFf48fb1),
+  3: Color(0xFFce93d8), // Purple
+  4: Color(0xFFb39ddb),
+  5: Color(0xFF9575cd),
+  6: Color(0xFF7986cb),
+  7: Color(0xFF64b5f6), // Blue
+  8: Color(0xFF4fc3f7),
+  9: Color(0xFF29b6f6),
+  10: Color(0xFF81c784), // Green
+  11: Color(0xFF66bb6a),
+  12: Color(0xFF4caf50),
+  13: Color(0xFFaed581), // Lime
+  14: Color(0xFF9ccc65),
+  15: Color(0xFF7cb342),
+  16: Color(0xFFff8a65), // Orange
+  17: Color(0xFFffab91),
+  18: Color(0xFFffcc80),
+  19: Color(0xFFd4e157), // Yellow
+  20: Color(0xFFc0ca33),
+  21: Color(0xFFafb42b),
+  22: Color(0xFFff8a80), // Pink
+  23: Color(0xFFff5252),
+  24: Color(0xFFff1744),
+};
 
-List<Icon> habitIcons = const [
-  Icon(
+Map<int, Icon> habitIcons = const {
+  1: Icon(
     CupertinoIcons.star,
-    size: 28,
+    size: 30,
   ),
-  Icon(
+  2: Icon(
     CupertinoIcons.check_mark,
-    size: 28,
+    size: 30,
   ),
-  Icon(
+  3: Icon(
     CupertinoIcons.calendar,
-    size: 28,
+    size: 30,
   ),
-  Icon(
+  4: Icon(
     CupertinoIcons.archivebox_fill,
-    size: 28,
+    size: 30,
   ),
-  Icon(
+  5: Icon(
     CupertinoIcons.alarm,
-    size: 28,
+    size: 30,
   ),
-  Icon(
+  6: Icon(
     CupertinoIcons.book,
-    size: 28,
+    size: 30,
   ),
-  Icon(
+  7: Icon(
     CupertinoIcons.bolt_horizontal,
-    size: 28,
+    size: 30,
   ),
-  Icon(
+  8: Icon(
     CupertinoIcons.shopping_cart,
-    size: 28,
+    size: 30,
   ),
-  Icon(
+  9: Icon(
     CupertinoIcons.music_note,
-    size: 28,
+    size: 30,
   ),
-  Icon(
+  10: Icon(
     CupertinoIcons.film,
-    size: 28,
+    size: 30,
   ),
-  Icon(
+  11: Icon(
     CupertinoIcons.game_controller,
-    size: 28,
+    size: 30,
   ),
-  Icon(
+  12: Icon(
     CupertinoIcons.gear,
-    size: 28,
+    size: 30,
   ),
-  Icon(
+  13: Icon(
     CupertinoIcons.lightbulb,
-    size: 28,
+    size: 30,
   ),
-  Icon(
+  14: Icon(
     CupertinoIcons.group,
-    size: 28,
+    size: 30,
   ),
-  Icon(
+  15: Icon(
     CupertinoIcons.money_dollar,
-    size: 28,
+    size: 30,
   ),
-  Icon(
+  16: Icon(
     CupertinoIcons.home,
-    size: 28,
+    size: 30,
   ),
-  Icon(
+  17: Icon(
     CupertinoIcons.scribble,
-    size: 28,
+    size: 30,
   ),
-  Icon(
+  18: Icon(
     CupertinoIcons.sportscourt,
-    size: 28,
+    size: 30,
   ),
-  Icon(
+  19: Icon(
     CupertinoIcons.airplane,
-    size: 28,
+    size: 30,
   ),
-  Icon(
+  20: Icon(
     CupertinoIcons.heart_solid,
-    size: 28,
+    size: 30,
   ),
-  Icon(
+  21: Icon(
     CupertinoIcons.smoke,
-    size: 28,
+    size: 30,
   ),
-  Icon(
+  22: Icon(
     CupertinoIcons.wand_stars_inverse,
-    size: 28,
+    size: 30,
   ),
-  Icon(
+  23: Icon(
     CupertinoIcons.phone,
-    size: 28,
+    size: 30,
   ),
-  Icon(
+  24: Icon(
     CupertinoIcons.person,
-    size: 28,
+    size: 30,
   ),
-];
+};

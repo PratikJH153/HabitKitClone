@@ -35,6 +35,7 @@ class TextFieldWidget extends StatelessWidget {
             ),
             child: TextFormField(
               controller: controller,
+              keyboardType: TextInputType.text,
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
               ),

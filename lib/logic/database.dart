@@ -15,9 +15,11 @@ class DatabaseService {
   String table = 'habit_table';
   String colId = 'id';
   String colTitle = 'title';
+  String colIcon = 'icon';
   String colDesc = 'description';
-  String colStatus = 'status';
+  String colColor = 'color';
   String colDone = 'done';
+  String colStartDate = 'startDate';
 
   Future<Database?> get database async {
     _db ??= await initDB();
@@ -33,7 +35,7 @@ class DatabaseService {
 
   void _onCreate(Database db, int version) async {
     await db.execute(
-        'CREATE TABLE $table($colId INTEGER PRIMARY KEY AUTOINCREMENT,$colTitle TEXT,$colDesc TEXT,$colStatus INTEGER)');
+        'CREATE TABLE $table($colId INTEGER PRIMARY KEY AUTOINCREMENT,$colTitle TEXT,$colDesc TEXT,$colIcon INTEGER, $colColor INTEGER, $colDone TEXT, $colStartDate TEXT)');
   }
 
   Future<List<Map<String, dynamic>>> getMapLists() async {
@@ -59,7 +61,7 @@ class DatabaseService {
     return id;
   }
 
-  Future<int> deleteHabit(int? id) async {
+  Future<dynamic> deleteHabit(int? id) async {
     Database? db = await database;
     final int result = await db!.delete(
       table,
@@ -69,7 +71,7 @@ class DatabaseService {
     return result;
   }
 
-  Future<int> updateHabit(Habit habit) async {
+  Future<dynamic> updateHabit(Habit habit) async {
     Database? db = await database;
     final int result = await db!.update(
       table,

@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:habittracker/constants/add_content.dart';
+import 'package:habittracker/logic/habit_impl.dart';
+import 'package:habittracker/models/habit.dart';
 import 'package:habittracker/widgets/textfield_widget.dart';
 
 class AddPage extends StatefulWidget {
@@ -13,22 +15,55 @@ class AddPage extends StatefulWidget {
 class _AddPageState extends State<AddPage> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _desController = TextEditingController();
-  Color _selectedColor = Color(0xFFef9a9a);
-  Icon _selectedIcon = Icon(
+  Color _selectedColor = const Color(0xFFef9a9a);
+  Icon _selectedIcon = const Icon(
     CupertinoIcons.star,
     size: 28,
   );
+
+  final HabitManager _habitManager = HabitManager();
+
+  void addHabit() async {
+    if (_nameController.text.trim().isNotEmpty) {
+      int colorIndex = 0;
+      int habitIndex = 0;
+
+      habitColors.forEach((key, value) {
+        if (value == _selectedColor) {
+          colorIndex = key;
+        }
+      });
+      habitIcons.forEach((key, value) {
+        if (value.icon == _selectedIcon.icon) {
+          habitIndex = key;
+        }
+      });
+
+      final Habit habit = Habit(
+        title: _nameController.text,
+        description: _desController.text.trim(),
+        color: colorIndex,
+        done: [],
+        icon: habitIndex,
+        startDate: DateTime.now().toIso8601String(),
+      );
+
+      final bool result = await _habitManager.insertHabit(habit);
+
+      if (result) {
+        print("ADDED");
+      } else {
+        print("NOT ADDED!");
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: GestureDetector(
-        onTap: () {
-          if (_nameController.text.trim().isNotEmpty) {
-            print("HELLO");
-          }
-        },
+        onTap: addHabit,
         child: Container(
           height: 60,
           width: double.infinity,
@@ -79,7 +114,12 @@ class _AddPageState extends State<AddPage> {
             fontWeight: FontWeight.bold,
           ),
         ),
-        actions: [IconButton(onPressed: () {}, icon: const Icon(Icons.done))],
+        actions: [
+          IconButton(
+            onPressed: addHabit,
+            icon: const Icon(Icons.done),
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(
@@ -122,30 +162,30 @@ class _AddPageState extends State<AddPage> {
                         mainAxisSpacing: 8.0,
                         crossAxisSpacing: 8.0,
                       ),
-                      itemCount: habitIcons.length,
+                      itemCount: habitIcons.values.length,
                       itemBuilder: (context, index) {
                         return GestureDetector(
                           onTap: () {
                             setState(() {
-                              _selectedIcon = habitIcons[index];
+                              _selectedIcon = habitIcons.values.toList()[index];
                             });
                           },
                           child: Container(
                             padding: const EdgeInsets.all(5),
                             decoration: BoxDecoration(
-                              border:
-                                  _selectedIcon.icon == habitIcons[index].icon
-                                      ? Border.all(
-                                          color: Colors.white,
-                                          width: 3,
-                                        )
-                                      : null,
+                              border: _selectedIcon.icon ==
+                                      habitIcons.values.toList()[index].icon
+                                  ? Border.all(
+                                      color: Colors.white,
+                                      width: 3,
+                                    )
+                                  : null,
                               color: const Color.fromARGB(255, 45, 45, 45),
                               borderRadius: const BorderRadius.all(
                                 Radius.circular(8),
                               ),
                             ),
-                            child: habitIcons[index],
+                            child: habitIcons.values.toList()[index],
                           ),
                         );
                       },
@@ -179,21 +219,23 @@ class _AddPageState extends State<AddPage> {
                         mainAxisSpacing: 12.0,
                         crossAxisSpacing: 12.0,
                       ),
-                      itemCount: habitColors.length,
+                      itemCount: habitColors.values.length,
                       itemBuilder: (context, index) {
                         return GestureDetector(
                           onTap: () {
                             setState(() {
-                              _selectedColor = habitColors[index];
+                              _selectedColor =
+                                  habitColors.values.toList()[index];
                             });
                           },
                           child: Container(
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: habitColors[index],
+                              color: habitColors.values.toList()[index],
                             ),
                             child: Center(
-                              child: _selectedColor == habitColors[index]
+                              child: _selectedColor ==
+                                      habitColors.values.toList()[index]
                                   ? Container(
                                       height: 18,
                                       width: 18,

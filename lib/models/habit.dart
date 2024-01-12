@@ -1,13 +1,13 @@
-import 'package:flutter/cupertino.dart';
+import 'package:habittracker/helper/capitalize_text.dart';
 
 class Habit {
   int? id;
-  IconData? icon;
+  int? icon;
   String? title;
   String? description;
-  List<int>? done;
-  Color? color;
-  DateTime? startDate;
+  List? done;
+  int? color;
+  String? startDate;
 
   Habit({
     this.title,
@@ -38,7 +38,7 @@ class Habit {
     map['description'] = description;
     map['icon'] = icon;
     map['color'] = color;
-    map['done'] = done;
+    map['done'] = done!.join(" ");
     map['startDate'] = startDate;
 
     return map;
@@ -47,11 +47,16 @@ class Habit {
   factory Habit.fromMap(Map<String, dynamic> map) {
     return Habit.withID(
       id: map['id'],
-      title: map['title'],
-      description: map['priority'],
+      title: map['title'].toString().capitalize(),
+      description: map['description'].toString().capitalize(),
       icon: map['icon'],
       color: map['color'],
-      done: map["done"],
+      done: map["done"] != null && map["done"].toString().trim().isNotEmpty
+          ? map["done"]
+              ?.split(" ")
+              .map((String number) => int.parse(number))
+              .toList()
+          : [],
       startDate: map["startDate"],
     );
   }
