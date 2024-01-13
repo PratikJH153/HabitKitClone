@@ -28,6 +28,11 @@ class Habit {
     this.startDate,
   });
 
+  @override
+  String toString() {
+    return 'Habit: {id: $id, title: $title, description: $description, icon: $icon, color: $color, done: $done, startDate: $startDate}';
+  }
+
   Map<String, dynamic> toMap() {
     var map = <String, dynamic>{};
     if (id != null) {
@@ -35,7 +40,7 @@ class Habit {
     }
     map['title'] = title;
 
-    map['description'] = description;
+    map['description'] = description.toString();
     map['icon'] = icon;
     map['color'] = color;
     map['done'] = done!.join(" ");

@@ -6,7 +6,8 @@ import 'package:habittracker/models/habit.dart';
 import 'package:habittracker/widgets/textfield_widget.dart';
 
 class AddPage extends StatefulWidget {
-  const AddPage({super.key});
+  final Habit? habit;
+  const AddPage({this.habit, super.key});
 
   @override
   State<AddPage> createState() => _AddPageState();
@@ -15,18 +16,19 @@ class AddPage extends StatefulWidget {
 class _AddPageState extends State<AddPage> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _desController = TextEditingController();
-  Color _selectedColor = const Color(0xFFef9a9a);
+  Color _selectedColor = const Color.fromARGB(255, 255, 119, 119);
   Icon _selectedIcon = const Icon(
     CupertinoIcons.star,
-    size: 28,
+    size: 30,
   );
+  String appTitle = "New Habit";
 
   final HabitManager _habitManager = HabitManager();
 
   void addHabit() async {
     if (_nameController.text.trim().isNotEmpty) {
-      int colorIndex = 0;
-      int habitIndex = 0;
+      int colorIndex = 1;
+      int iconIndex = 1;
 
       habitColors.forEach((key, value) {
         if (value == _selectedColor) {
@@ -35,27 +37,59 @@ class _AddPageState extends State<AddPage> {
       });
       habitIcons.forEach((key, value) {
         if (value.icon == _selectedIcon.icon) {
-          habitIndex = key;
+          iconIndex = key;
         }
       });
+      Habit habit;
 
-      final Habit habit = Habit(
-        title: _nameController.text,
-        description: _desController.text.trim(),
-        color: colorIndex,
-        done: [],
-        icon: habitIndex,
-        startDate: DateTime.now().toIso8601String(),
-      );
+      if (widget.habit == null) {
+        habit = Habit(
+          title: _nameController.text,
+          description: _desController.text.trim(),
+          color: colorIndex,
+          done: widget.habit == null ? [] : widget.habit!.done,
+          icon: iconIndex,
+          startDate: DateTime.now().toIso8601String(),
+        );
+      } else {
+        habit = Habit.withID(
+          id: widget.habit!.id,
+          title: _nameController.text,
+          description: _desController.text.trim(),
+          color: colorIndex,
+          done: widget.habit == null ? [] : widget.habit!.done,
+          icon: iconIndex,
+          startDate: DateTime.now().toIso8601String(),
+        );
+      }
 
-      final bool result = await _habitManager.insertHabit(habit);
+      final bool result = widget.habit == null
+          ? await _habitManager.insertHabit(habit)
+          : await _habitManager.updateHabit(habit);
 
       if (result) {
-        print("ADDED");
-      } else {
-        print("NOT ADDED!");
-      }
+        Navigator.of(context).pop(true);
+      } else {}
     }
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _desController.dispose();
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    if (widget.habit != null) {
+      _nameController.text = widget.habit!.title!.toString();
+      _desController.text = widget.habit!.description!.toString();
+      _selectedColor = habitColors[widget.habit!.color!]!;
+      _selectedIcon = habitIcons[widget.habit!.icon!]!;
+      appTitle = "Edit Habit";
+    }
+    super.initState();
   }
 
   @override
@@ -102,13 +136,13 @@ class _AddPageState extends State<AddPage> {
         centerTitle: false,
         leading: IconButton(
           onPressed: () {
-            Navigator.of(context).pop();
+            Navigator.of(context).pop(true);
           },
           icon: const Icon(Icons.close),
         ),
-        title: const Text(
-          "New Habit",
-          style: TextStyle(
+        title: Text(
+          appTitle,
+          style: const TextStyle(
             fontFamily: "Raleway",
             fontSize: 23,
             fontWeight: FontWeight.bold,

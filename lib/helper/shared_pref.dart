@@ -10,9 +10,4 @@ class RowOffset {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getInt('offset');
   }
-
-  static Future<bool?> clearInt() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
-  }
 }
