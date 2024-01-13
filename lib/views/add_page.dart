@@ -63,18 +63,13 @@ class _AddPageState extends State<AddPage> {
         );
       }
 
-      print(habit.toString());
-
       final bool result = widget.habit == null
           ? await _habitManager.insertHabit(habit)
           : await _habitManager.updateHabit(habit);
 
       if (result) {
-        print("ADDED");
         Navigator.of(context).pop(true);
-      } else {
-        print("NOT ADDED!");
-      }
+      } else {}
     }
   }
 

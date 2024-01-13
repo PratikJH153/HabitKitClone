@@ -50,7 +50,6 @@ class Habit {
   }
 
   factory Habit.fromMap(Map<String, dynamic> map) {
-    print(map);
     return Habit.withID(
       id: map['id'],
       title: map['title'].toString().capitalize(),

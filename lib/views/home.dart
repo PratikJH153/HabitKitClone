@@ -1,3 +1,6 @@
+import 'dart:math';
+
+import 'package:confetti/confetti.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:habittracker/constants/add_content.dart';
@@ -21,6 +24,8 @@ class _HomePageState extends State<HomePage> {
   int indexExpanded = -1;
   int offset = 0;
   List<Habit>? habits;
+  bool isConfetti = false;
+  final ConfettiController _confettiController = ConfettiController();
 
   final HabitManager _habitManager = HabitManager();
 
@@ -37,9 +42,21 @@ class _HomePageState extends State<HomePage> {
 
   void addStreakInSql(Habit habit) async {
     final bool result = await _habitManager.updateHabit(habit);
-    //TODO: SHOW SOMETHING
-    if (result) {
-    } else {}
+    if (!result) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            duration: Duration(seconds: 1),
+            backgroundColor: Color.fromARGB(255, 255, 96, 96),
+            content: Text(
+              "Error while adding streak",
+              style:
+                  TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+            ),
+          ),
+        );
+      }
+    }
   }
 
   void addStreak(
@@ -49,8 +66,35 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       if (habit.done!.contains(todayPointer)) {
         habit.done!.remove(todayPointer);
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              duration: Duration(seconds: 1),
+              backgroundColor: Color.fromARGB(255, 255, 68, 68),
+              content: Text(
+                "Try to keep up the streak! 🥺🥺",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                  fontSize: 16,
+                ),
+              ),
+            ),
+          );
+        }
       } else {
         habit.done!.add(todayPointer);
+        setState(() {
+          isConfetti = true;
+          _confettiController.play();
+        });
+
+        Future.delayed(const Duration(seconds: 1), () {
+          setState(() {
+            isConfetti = false;
+            _confettiController.stop();
+          });
+        });
       }
       addStreakInSql(habit);
     });
@@ -68,7 +112,12 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     getHabits();
-
+    _confettiController.addListener(() {
+      setState(() {
+        isConfetti =
+            _confettiController.state == ConfettiControllerState.playing;
+      });
+    });
     super.initState();
   }
 
@@ -186,254 +235,287 @@ class _HomePageState extends State<HomePage> {
                   ),
                 )
               : SizedBox(
-                  child: ListView.builder(
-                    padding: const EdgeInsets.only(
-                      bottom: 120,
-                      top: 20,
-                      left: 18,
-                      right: 18,
-                    ),
-                    itemCount: habits!.length,
-                    itemBuilder: (ctx, index) {
-                      final Habit habit = habits![index];
+                  child: Stack(
+                    children: [
+                      ListView.builder(
+                        padding: const EdgeInsets.only(
+                          bottom: 120,
+                          top: 20,
+                          left: 18,
+                          right: 18,
+                        ),
+                        itemCount: habits!.length,
+                        itemBuilder: (ctx, index) {
+                          final Habit habit = habits![index];
 
-                      final int todayPointer = DateTime.now()
-                          .difference(DateTime.parse(habit.startDate!))
-                          .inDays;
+                          final int todayPointer = DateTime.now()
+                              .difference(DateTime.parse(habit.startDate!))
+                              .inDays;
 
-                      return GestureDetector(
-                        onTap: () => expand(index),
-                        child: Container(
-                          margin: const EdgeInsets.only(bottom: 15),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 14,
-                            vertical: 10,
-                          ),
-                          decoration: const BoxDecoration(
-                            color: Color.fromARGB(255, 39, 39, 39),
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(15),
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                offset: Offset(0, 5),
-                                color: Colors.black26,
-                                blurRadius: 10,
-                                spreadRadius: 0.1,
+                          return GestureDetector(
+                            onTap: () => expand(index),
+                            child: Container(
+                              margin: const EdgeInsets.only(bottom: 15),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 14,
+                                vertical: 10,
                               ),
-                            ],
-                          ),
-                          child: Column(
-                            children: [
-                              Row(
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(5),
-                                    decoration: BoxDecoration(
-                                      color: habitColors[habit.color],
-                                      borderRadius: const BorderRadius.all(
-                                        Radius.circular(10),
-                                      ),
-                                    ),
-                                    child: habitIcons[habit.icon],
+                              decoration: const BoxDecoration(
+                                color: Color.fromARGB(255, 39, 39, 39),
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(15),
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    offset: Offset(0, 5),
+                                    color: Colors.black26,
+                                    blurRadius: 10,
+                                    spreadRadius: 0.1,
                                   ),
-                                  const SizedBox(
-                                    width: 15,
-                                  ),
-                                  Text(
-                                    habit.title!,
-                                    style: const TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  const Spacer(),
-                                  InkWell(
-                                    onTap: () {
-                                      isExpanded && indexExpanded == index
-                                          ? expand(index)
-                                          : addStreak(habit, todayPointer);
-                                    },
-                                    child: Container(
-                                      padding: const EdgeInsets.all(14),
-                                      decoration: BoxDecoration(
-                                        color: habitColors[habit.color]!
-                                            .withOpacity(0.3),
-                                        borderRadius: const BorderRadius.all(
-                                          Radius.circular(10),
-                                        ),
-                                      ),
-                                      child:
-                                          isExpanded && indexExpanded == index
-                                              ? const Icon(Icons.close)
-                                              : const Icon(Icons.done),
-                                    ),
-                                  )
                                 ],
                               ),
-                              const SizedBox(
-                                height: 10,
-                              ),
-                              SizedBox(
-                                height: 100,
-                                child: GridView.builder(
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  gridDelegate:
-                                      const SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 28, // Number of columns
-                                    crossAxisSpacing:
-                                        2.0, // Spacing between columns
-                                    mainAxisSpacing:
-                                        2.0, // Spacing between rows
+                              child: Column(
+                                children: [
+                                  Row(
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.all(5),
+                                        decoration: BoxDecoration(
+                                          color: habitColors[habit.color],
+                                          borderRadius: const BorderRadius.all(
+                                            Radius.circular(10),
+                                          ),
+                                        ),
+                                        child: habitIcons[habit.icon],
+                                      ),
+                                      const SizedBox(
+                                        width: 15,
+                                      ),
+                                      Text(
+                                        habit.title!,
+                                        style: const TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      const Spacer(),
+                                      InkWell(
+                                        onTap: () {
+                                          isExpanded && indexExpanded == index
+                                              ? expand(index)
+                                              : addStreak(habit, todayPointer);
+                                        },
+                                        child: Container(
+                                          padding: const EdgeInsets.all(14),
+                                          decoration: BoxDecoration(
+                                            color: habitColors[habit.color]!
+                                                .withOpacity(0.3),
+                                            borderRadius:
+                                                const BorderRadius.all(
+                                              Radius.circular(10),
+                                            ),
+                                          ),
+                                          child: isExpanded &&
+                                                  indexExpanded == index
+                                              ? const Icon(Icons.close)
+                                              : const Icon(Icons.done),
+                                        ),
+                                      )
+                                    ],
                                   ),
-                                  itemCount: 7 * 28,
-                                  itemBuilder:
-                                      (BuildContext context, int index) {
-                                    //TODO: Make it reverse
-                                    int reversedIndex = index + (offset * 28);
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
+                                  SizedBox(
+                                    height: 110,
+                                    child: GridView.builder(
+                                      physics:
+                                          const NeverScrollableScrollPhysics(),
+                                      gridDelegate:
+                                          const SliverGridDelegateWithFixedCrossAxisCount(
+                                        crossAxisCount: 28, // Number of columns
+                                        crossAxisSpacing:
+                                            1.5, // Spacing between columns
+                                        mainAxisSpacing:
+                                            1.5, // Spacing between rows
+                                      ),
+                                      itemCount: 8 * 28,
+                                      itemBuilder:
+                                          (BuildContext context, int index) {
+                                        int reversedIndex =
+                                            index + (offset * 28);
 
-                                    return Container(
-                                      decoration: BoxDecoration(
-                                        color:
-                                            habit.done!.contains(reversedIndex)
+                                        return Container(
+                                          decoration: BoxDecoration(
+                                            color: habit.done!
+                                                    .contains(reversedIndex)
                                                 ? habitColors[habit.color]!
                                                 : habitColors[habit.color]!
                                                     .withOpacity(0.1),
-                                        borderRadius: const BorderRadius.all(
-                                          Radius.circular(3),
-                                        ),
-                                      ),
-                                      child: const Center(
-                                        child: Text(
-                                          ' ',
-                                          style: TextStyle(
-                                              color: Colors.transparent),
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ),
-                              isExpanded && indexExpanded == index
-                                  ? Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        habit.description!.isNotEmpty
-                                            ? Text(
-                                                habit.description!,
-                                                style: const TextStyle(
-                                                  fontSize: 14,
-                                                  fontFamily: "Poppins",
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              )
-                                            : const SizedBox(),
-                                        const SizedBox(
-                                          height: 10,
-                                        ),
-                                        Row(
+                                            borderRadius:
+                                                const BorderRadius.all(
+                                              Radius.circular(3),
+                                            ),
+                                          ),
+                                          child: const Center(
+                                            child: Text(
+                                              ' ',
+                                              style: TextStyle(
+                                                  color: Colors.transparent),
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                  isExpanded && indexExpanded == index
+                                      ? Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
-                                            Expanded(
-                                              child: ElevatedButton.icon(
-                                                style: ElevatedButton.styleFrom(
-                                                  backgroundColor:
-                                                      const Color.fromARGB(
-                                                          255, 249, 249, 249),
-                                                  shape:
-                                                      const RoundedRectangleBorder(
+                                            habit.description!.isNotEmpty
+                                                ? Text(
+                                                    habit.description!,
+                                                    style: const TextStyle(
+                                                      fontSize: 14,
+                                                      fontFamily: "Poppins",
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
+                                                  )
+                                                : const SizedBox(),
+                                            const SizedBox(
+                                              height: 10,
+                                            ),
+                                            Row(
+                                              children: [
+                                                Expanded(
+                                                  child: ElevatedButton.icon(
+                                                    style: ElevatedButton
+                                                        .styleFrom(
+                                                      backgroundColor:
+                                                          const Color.fromARGB(
+                                                              255,
+                                                              249,
+                                                              249,
+                                                              249),
+                                                      shape:
+                                                          const RoundedRectangleBorder(
+                                                        borderRadius:
+                                                            BorderRadius.all(
+                                                          Radius.circular(10),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    onPressed: () => addStreak(
+                                                        habit, todayPointer),
+                                                    icon: const Icon(
+                                                      Icons.done_all,
+                                                      color: Colors.black,
+                                                    ),
+                                                    label: const Text(
+                                                      "Complete",
+                                                      style: TextStyle(
+                                                        color: Colors.black,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                                const SizedBox(
+                                                  width: 8,
+                                                ),
+                                                Container(
+                                                  decoration: BoxDecoration(
+                                                    color: habitColors[
+                                                            habit.color]!
+                                                        .withOpacity(0.1),
                                                     borderRadius:
-                                                        BorderRadius.all(
+                                                        const BorderRadius.all(
                                                       Radius.circular(10),
                                                     ),
                                                   ),
-                                                ),
-                                                onPressed: () => addStreak(
-                                                    habit, todayPointer),
-                                                icon: const Icon(
-                                                  Icons.done_all,
-                                                  color: Colors.black,
-                                                ),
-                                                label: const Text(
-                                                  "Complete",
-                                                  style: TextStyle(
-                                                    color: Colors.black,
+                                                  child: IconButton(
+                                                    onPressed: () =>
+                                                        goToAddPage(
+                                                            habit: habit),
+                                                    icon: const Icon(
+                                                        CupertinoIcons.pencil),
                                                   ),
                                                 ),
-                                              ),
-                                            ),
-                                            const SizedBox(
-                                              width: 8,
-                                            ),
-                                            Container(
-                                              decoration: BoxDecoration(
-                                                color: habitColors[habit.color]!
-                                                    .withOpacity(0.1),
-                                                borderRadius:
-                                                    const BorderRadius.all(
-                                                  Radius.circular(10),
+                                                const SizedBox(
+                                                  width: 8,
                                                 ),
-                                              ),
-                                              child: IconButton(
-                                                onPressed: () =>
-                                                    goToAddPage(habit: habit),
-                                                icon: const Icon(
-                                                    CupertinoIcons.pencil),
-                                              ),
-                                            ),
-                                            const SizedBox(
-                                              width: 8,
-                                            ),
-                                            Container(
-                                              decoration: BoxDecoration(
-                                                color: habitColors[habit.color]!
-                                                    .withOpacity(0.1),
-                                                borderRadius:
-                                                    const BorderRadius.all(
-                                                  Radius.circular(10),
-                                                ),
-                                              ),
-                                              child: IconButton(
-                                                onPressed: () {
-                                                  showCustomDialog(
-                                                    context,
-                                                    DialogBoxWidget(
-                                                      title: "Delete the habit",
-                                                      des:
-                                                          "Are you sure want to delete the habit?",
-                                                      firstButton: "Yes",
-                                                      secondButton: "Cancel",
-                                                      firstOnTap: () {
-                                                        _habitManager
-                                                            .deleteHabit(
-                                                                habit.id!);
-                                                        setState(() {
-                                                          getHabits();
-                                                        });
-                                                        Navigator.of(context)
-                                                            .pop();
-                                                      },
-                                                      secondOnTap: () {
-                                                        Navigator.of(context)
-                                                            .pop();
-                                                      },
+                                                Container(
+                                                  decoration: BoxDecoration(
+                                                    color: habitColors[
+                                                            habit.color]!
+                                                        .withOpacity(0.1),
+                                                    borderRadius:
+                                                        const BorderRadius.all(
+                                                      Radius.circular(10),
                                                     ),
-                                                  );
-                                                },
-                                                icon: const Icon(
-                                                    CupertinoIcons.delete),
-                                              ),
+                                                  ),
+                                                  child: IconButton(
+                                                    onPressed: () {
+                                                      showCustomDialog(
+                                                        context,
+                                                        DialogBoxWidget(
+                                                          title:
+                                                              "Delete the habit",
+                                                          des:
+                                                              "Are you sure want to delete the habit?",
+                                                          firstButton: "Yes",
+                                                          secondButton:
+                                                              "Cancel",
+                                                          firstOnTap: () {
+                                                            _habitManager
+                                                                .deleteHabit(
+                                                                    habit.id!);
+                                                            setState(() {
+                                                              getHabits();
+                                                            });
+                                                            Navigator.of(
+                                                                    context)
+                                                                .pop();
+                                                          },
+                                                          secondOnTap: () {
+                                                            Navigator.of(
+                                                                    context)
+                                                                .pop();
+                                                          },
+                                                        ),
+                                                      );
+                                                    },
+                                                    icon: const Icon(
+                                                        CupertinoIcons.delete),
+                                                  ),
+                                                ),
+                                              ],
                                             ),
                                           ],
-                                        ),
-                                      ],
-                                    )
-                                  : const SizedBox(),
-                            ],
-                          ),
+                                        )
+                                      : const SizedBox(),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                      Container(
+                        alignment: Alignment.bottomCenter,
+                        child: ConfettiWidget(
+                          confettiController: _confettiController,
+                          shouldLoop: true,
+                          emissionFrequency: 0.05,
+                          blastDirection: -pi / 2,
+                          maxBlastForce: 50,
+                          minBlastForce: 49,
+                          gravity: 0.05,
+                          blastDirectionality: BlastDirectionality.explosive,
+                          numberOfParticles: 70,
                         ),
-                      );
-                    },
+                      ),
+                    ],
                   ),
                 ),
     );
