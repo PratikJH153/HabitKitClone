@@ -1,16 +1,16 @@
 import "package:flutter/cupertino.dart";
 
 Map<int, Color> habitColors = const {
-  1: Color(0xFFef9a9a),
-  2: Color(0xFFf48fb1),
-  3: Color(0xFFce93d8), // Purple
-  4: Color(0xFFb39ddb),
-  5: Color(0xFF9575cd),
-  6: Color(0xFF7986cb),
-  7: Color(0xFF64b5f6), // Blue
-  8: Color(0xFF4fc3f7),
+  1: Color.fromARGB(255, 255, 119, 119),
+  2: Color.fromARGB(255, 255, 91, 146),
+  3: Color.fromARGB(255, 235, 122, 255), // Purple
+  4: Color.fromARGB(255, 176, 133, 255),
+  5: Color.fromARGB(255, 138, 70, 255),
+  6: Color.fromARGB(255, 99, 125, 255),
+  7: Color.fromARGB(255, 81, 177, 255), // Blue
+  8: Color.fromARGB(255, 66, 195, 255),
   9: Color(0xFF29b6f6),
-  10: Color(0xFF81c784), // Green
+  10: Color.fromARGB(255, 137, 231, 142), // Green
   11: Color(0xFF66bb6a),
   12: Color(0xFF4caf50),
   13: Color(0xFFaed581), // Lime
@@ -23,8 +23,8 @@ Map<int, Color> habitColors = const {
   20: Color(0xFFc0ca33),
   21: Color(0xFFafb42b),
   22: Color(0xFFff8a80), // Pink
-  23: Color(0xFFff5252),
-  24: Color(0xFFff1744),
+  23: Color.fromARGB(255, 255, 98, 98),
+  24: Color.fromARGB(255, 255, 88, 121),
 };
 
 Map<int, Icon> habitIcons = const {
